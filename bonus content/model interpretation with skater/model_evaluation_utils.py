@@ -44,9 +44,7 @@ def train_predict_model(classifier,
                         test_features, test_labels):
     # build model    
     classifier.fit(train_features, train_labels)
-    # predict using model
-    predictions = classifier.predict(test_features) 
-    return predictions    
+    return classifier.predict(test_features)    
 
 
 def display_confusion_matrix(true_labels, predicted_labels, classes=[1,0]):
@@ -126,9 +124,9 @@ def plot_model_decision_surface(clf, train_features, train_labels,
 def plot_model_roc_curve(clf, features, true_labels, label_encoder=None, class_names=None):
     
     ## Compute ROC curve and ROC area for each class
-    fpr = dict()
-    tpr = dict()
-    roc_auc = dict()
+    fpr = {}
+    tpr = {}
+    roc_auc = {}
     if hasattr(clf, 'classes_'):
         class_labels = clf.classes_
     elif label_encoder:
@@ -148,13 +146,13 @@ def plot_model_roc_curve(clf, features, true_labels, label_encoder=None, class_n
             y_score = prob[:, prob.shape[1]-1]
         else:
             raise AttributeError("Estimator doesn't have a probability or confidence scoring system!")
-        
+
         fpr, tpr, _ = roc_curve(y_test, y_score)      
         roc_auc = auc(fpr, tpr)
         plt.plot(fpr, tpr, label='ROC curve (area = {0:0.2f})'
                                  ''.format(roc_auc),
                  linewidth=2.5)
-        
+
     elif n_classes > 2:
         if hasattr(clf, 'predict_proba'):
             y_score = clf.predict_proba(features)
@@ -200,7 +198,7 @@ def plot_model_roc_curve(clf, features, true_labels, label_encoder=None, class_n
                      linewidth=2, linestyle=':')
     else:
         raise ValueError('Number of classes should be atleast 2 or more')
-        
+
     plt.plot([0, 1], [0, 1], 'k--')
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.05])

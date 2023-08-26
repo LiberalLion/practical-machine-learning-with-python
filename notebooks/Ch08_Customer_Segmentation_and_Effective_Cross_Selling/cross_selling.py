@@ -24,14 +24,13 @@ get_ipython().magic('matplotlib inline')
 grocery_items = set()
 with open("grocery_dataset.txt") as f:
     reader = csv.reader(f, delimiter=",")
-    for i, line in enumerate(reader):
+    for line in reader:
         grocery_items.update(line)
-output_list = list()
+output_list = []
 with open("grocery_dataset.txt") as f:
     reader = csv.reader(f, delimiter=",")
-    for i, line in enumerate(reader):
-        row_val = {item:0 for item in grocery_items}
-        row_val.update({item:1 for item in line})
+    for line in reader:
+        row_val = {item:0 for item in grocery_items} | {item:1 for item in line}
         output_list.append(row_val)
 grocery_df = pd.DataFrame(output_list)
 
@@ -62,7 +61,7 @@ item_summary_df.head()
 objects = (list(item_summary_df['item_name'].head(n=20)))
 y_pos = np.arange(len(objects))
 performance = list(item_summary_df['item_count'].head(n=20))
- 
+
 plt.bar(y_pos, performance, align='center', alpha=0.5)
 plt.xticks(y_pos, objects, rotation='vertical')
 plt.ylabel('Item count')
@@ -175,15 +174,17 @@ if len(itemsets) < 1000000:
     for P, Q, supp, conf in association_rules(itemsets, confidence)
        if len(Q) == 1 ]
 
-    names = {item: '{}={}'.format(var.name, val)
-        for item, var, val in OneHot.decode(mapping, data_gro_1, mapping)}
-    
+    names = {
+        item: f'{var.name}={val}'
+        for item, var, val in OneHot.decode(mapping, data_gro_1, mapping)
+    }
+
     eligible_ante = [v for k,v in names.items() if v.endswith("1")]
-    
+
     N = input_assoc_rules.shape[0]
-    
+
     rule_stats = list(rules_stats(rules, itemsets, N))
-    
+
     rule_list_df = []
     for ex_rule_frm_rule_stat in rule_stats:
         ante = ex_rule_frm_rule_stat[0]            
@@ -203,7 +204,7 @@ if len(itemsets) < 1000000:
                              'consequent':named_cons[:-2] }
                 rule_list_df.append(rule_dict)
     rules_df = pd.DataFrame(rule_list_df)
-    print("Raw rules data frame of {} rules generated".format(rules_df.shape[0]))
+    print(f"Raw rules data frame of {rules_df.shape[0]} rules generated")
     if not rules_df.empty:
         pruned_rules_df = rules_df.groupby(['antecedent','consequent']).max().reset_index()
     else:
@@ -275,14 +276,15 @@ transaction_level_df_uk = grouped.aggregate(lambda x: tuple(x)).reset_index()[['
 
 
 transaction_dict = {item:0 for item in items}
-output_dict = dict()
-temp = dict()
+output_dict = {}
+temp = {}
 for rec in transaction_level_df_uk.to_dict('records'):
     invoice_num = rec['InvoiceNo']
     items_list = rec['Description']
-    transaction_dict = {item:0 for item in items}
-    transaction_dict.update({item:1 for item in items if item in items_list})
-    temp.update({invoice_num:transaction_dict})
+    transaction_dict = {item: 0 for item in items} | {
+        item: 1 for item in items if item in items_list
+    }
+    temp[invoice_num] = transaction_dict
 
 new = [v for k,v in temp.items()]
 tranasction_df = pd.DataFrame(new)
@@ -350,15 +352,17 @@ if len(itemsets) < 1000000:
     for P, Q, supp, conf in association_rules(itemsets, confidence)
        if len(Q) == 1 ]
 
-    names = {item: '{}={}'.format(var.name, val)
-        for item, var, val in OneHot.decode(mapping, data_tran_uk, mapping)}
-    
+    names = {
+        item: f'{var.name}={val}'
+        for item, var, val in OneHot.decode(mapping, data_tran_uk, mapping)
+    }
+
     eligible_ante = [v for k,v in names.items() if v.endswith("1")]
-    
+
     N = input_assoc_rules.shape[0]
-    
+
     rule_stats = list(rules_stats(rules, itemsets, N))
-    
+
     rule_list_df = []
     for ex_rule_frm_rule_stat in rule_stats:
         ante = ex_rule_frm_rule_stat[0]            
@@ -378,7 +382,7 @@ if len(itemsets) < 1000000:
                              'consequent':named_cons[:-2] }
                 rule_list_df.append(rule_dict)
     rules_df = pd.DataFrame(rule_list_df)
-    print("Raw rules data frame of {} rules generated".format(rules_df.shape[0]))
+    print(f"Raw rules data frame of {rules_df.shape[0]} rules generated")
     if not rules_df.empty:
         pruned_rules_df = rules_df.groupby(['antecedent','consequent']).max().reset_index()
     else:

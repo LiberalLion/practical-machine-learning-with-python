@@ -6,6 +6,7 @@ Created on Sun Sep 17 00:00:00 2017
 @author: DIP
 """
 
+
 # # Import necessary dependencies
 
 # In[1]:
@@ -347,7 +348,7 @@ meu.display_model_performance_metrics(true_labels=wqp_test_y, predicted_labels=w
 import os
 
 mingw_path = r'C:\mingw-w64\mingw64\bin'
-os.environ['PATH'] = mingw_path + ';' + os.environ['PATH']
+os.environ['PATH'] = f'{mingw_path};' + os.environ['PATH']
 
 import xgboost as xgb
 

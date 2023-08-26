@@ -33,29 +33,25 @@ def print_basic_csv(file_name, delimiter=','):
         None
 
     """
-    csv_rows = list()
-    csv_attr_dict = dict()
+    csv_rows = []
     csv_reader = None
 
     # read csv
     csv_reader = csv.reader(open(file_name, 'r'), delimiter=delimiter)
-        
+
     # iterate and extract data    
     for row in csv_reader:
         print(row)
         csv_rows.append(row)
-    
-    # prepare attribute lists
-    for col in csv_rows[0]:
-        csv_attr_dict[col]=list()
-    
+
+    csv_attr_dict = {col: [] for col in csv_rows[0]}
     # iterate and add data to attribute lists
     for row in csv_rows[1:]:
         csv_attr_dict['sno'].append(row[0])
         csv_attr_dict['fruit'].append(row[1])
         csv_attr_dict['color'].append(row[2])
         csv_attr_dict['price'].append(row[3])
-    
+
     # print the result
     print("\n\n")
     print("CSV Attributes::")

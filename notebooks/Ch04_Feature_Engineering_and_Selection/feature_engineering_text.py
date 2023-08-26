@@ -149,7 +149,7 @@ features
 
 tt_matrix = lda.components_
 for topic_weights in tt_matrix:
-    topic = [(token, weight) for token, weight in zip(vocab, topic_weights)]
+    topic = list(zip(vocab, topic_weights))
     topic = sorted(topic, key=lambda x: -x[1])
     topic = [item for item in topic if item[1] > 0.6]
     print(topic)

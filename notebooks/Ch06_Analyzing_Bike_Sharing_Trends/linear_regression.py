@@ -52,7 +52,7 @@ plt.rcParams.update(params)
 
 
 hour_df = pd.read_csv('hour.csv')
-print("Shape of dataset::{}".format(hour_df.shape))
+print(f"Shape of dataset::{hour_df.shape}")
 
 
 # ## Preprocessing
@@ -146,13 +146,11 @@ def transform_ohe(df,le,ohe,col_name):
     # label encode
     col_labels = le.transform(df[col_name])
     df[col_name+'_label'] = col_labels
-    
+
     # ohe 
     feature_arr = ohe.fit_transform(df[[col_name+'_label']]).toarray()
     feature_labels = [col_name+'_'+str(cls_label) for cls_label in le.classes_]
-    features_df = pd.DataFrame(feature_arr, columns=feature_labels)
-    
-    return features_df
+    return pd.DataFrame(feature_arr, columns=feature_labels)
 
 
 # ## Train-Test Split
@@ -169,8 +167,8 @@ y = y.reset_index()
 X_test.reset_index(inplace=True)
 y_test = y_test.reset_index()
 
-print("Training set::{}{}".format(X.shape,y.shape))
-print("Testing set::{}".format(X_test.shape))
+print(f"Training set::{X.shape}{y.shape}")
+print(f"Testing set::{X_test.shape}")
 
 
 # ## Normality Test
@@ -207,11 +205,16 @@ for col in cat_attr_list:
 # In[10]:
 
 
-feature_df_list = [X[numeric_feature_cols]]
-feature_df_list.extend([enc['feature_df']                         for enc in encoded_attr_list                         if enc['col_name'] in subset_cat_features])
-
+feature_df_list = [
+    X[numeric_feature_cols],
+    *[
+        enc['feature_df']
+        for enc in encoded_attr_list
+        if enc['col_name'] in subset_cat_features
+    ],
+]
 train_df_new = pd.concat(feature_df_list, axis=1)
-print("Shape::{}".format(train_df_new.shape))
+print(f"Shape::{train_df_new.shape}")
 
 
 # ## Linear Regression
@@ -251,18 +254,18 @@ mse_scores = cross_val_score(lin_reg, X, y, cv=10,scoring='neg_mean_squared_erro
 
 
 fig, ax = plt.subplots()
-ax.plot([i for i in range(len(r2_scores))],r2_scores,lw=2)
+ax.plot(list(range(len(r2_scores))), r2_scores, lw=2)
 ax.set_xlabel('Iteration')
 ax.set_ylabel('R-Squared')
-ax.title.set_text("Cross Validation Scores, Avg:{}".format(np.average(r2_scores)))
+ax.title.set_text(f"Cross Validation Scores, Avg:{np.average(r2_scores)}")
 plt.show()
 
 
 # In[15]:
 
 
-print("R-squared::{}".format(r2_scores))
-print("MSE::{}".format(mse_scores))
+print(f"R-squared::{r2_scores}")
+print(f"MSE::{mse_scores}")
 
 
 # In[16]:
@@ -285,13 +288,18 @@ for enc in encoded_attr_list:
                                                               le,ohe,
                                                               col_name),
                                    'col_name':col_name})
-    
-    
-test_feature_df_list = [X_test[numeric_feature_cols]]
-test_feature_df_list.extend([enc['feature_df']                              for enc in test_encoded_attr_list                              if enc['col_name'] in subset_cat_features])
 
-test_df_new = pd.concat(test_feature_df_list, axis=1) 
-print("Shape::{}".format(test_df_new.shape))
+
+test_feature_df_list = [
+    X_test[numeric_feature_cols],
+    *[
+        enc['feature_df']
+        for enc in test_encoded_attr_list
+        if enc['col_name'] in subset_cat_features
+    ],
+]
+test_df_new = pd.concat(test_feature_df_list, axis=1)
+print(f"Shape::{test_df_new.shape}")
 
 
 # In[18]:
@@ -315,7 +323,7 @@ residuals = y_test-y_pred
 
 
 r2_score = lin_reg.score(X_test,y_test)
-print("R-squared::{}".format(r2_score))
+print(f"R-squared::{r2_score}")
 print("MSE: %.2f"
       % metrics.mean_squared_error(y_test, y_pred))
 
@@ -328,7 +336,7 @@ ax.scatter(y_test, residuals)
 ax.axhline(lw=2,color='black')
 ax.set_xlabel('Observed')
 ax.set_ylabel('Residuals')
-ax.title.set_text("Residual Plot with R-Squared={}".format(np.average(r2_score)))
+ax.title.set_text(f"Residual Plot with R-Squared={np.average(r2_score)}")
 plt.show()
 
 

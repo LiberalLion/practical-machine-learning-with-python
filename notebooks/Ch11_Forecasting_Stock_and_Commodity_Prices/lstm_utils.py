@@ -37,7 +37,7 @@ plt.rcParams.update(params)
 # get stock price information 
 def get_raw_data(index_name,retry_attempts = 3):   
     if index_name:
-        while retry_attempts > 0 :
+        while retry_attempts > 0:
             try:
                 df = pdr.get_data_yahoo(index_name)
                 new_df = df.reindex(index=pd.date_range(df.index.min(), 
@@ -46,9 +46,8 @@ def get_raw_data(index_name,retry_attempts = 3):
                 retry_attempts = 0
                 return new_df
             except:
-                print("Data pull failed. {} retry attempts remaining".\
-                      format(retry_attempts))
-                retry_attempts = retry_attempts - 1
+                print(f"Data pull failed. {retry_attempts} retry attempts remaining")
+                retry_attempts -= 1
     else:
         print("Invalid usage. Parameter index_name is required")
     return None
@@ -61,13 +60,11 @@ def get_reg_train_test(timeseries,sequence_length= 51,
     # smoothen out series
     if roll_mean_window:
         timeseries = timeseries.rolling(roll_mean_window).mean().dropna()
-    
-    # create windows
-    result = []
-    for index in range(len(timeseries) - sequence_length):
-        result.append(timeseries[index: index + sequence_length])
-           
-    
+
+    result = [
+        timeseries[index : index + sequence_length]
+        for index in range(len(timeseries) - sequence_length)
+    ]
     # normalize data as a variation of 0th index
     if normalize:
         normalised_data = []
@@ -76,30 +73,30 @@ def get_reg_train_test(timeseries,sequence_length= 51,
                                    for p in window]
             normalised_data.append(normalised_window)
         result = normalised_data
-    
+
     # identify train-test splits
-    result = np.array(result) 
+    result = np.array(result)
     row = round(train_size * result.shape[0])
-    
+
     # split train and test sets
     train = result[:int(row), :]
     test = result[int(row):, :]
-    
+
     # scale data in 0-1 range
     scaler = None
     if scale:
         scaler=MinMaxScaler(feature_range=(0, 1))
         train = scaler.fit_transform(train)
         test = scaler.transform(test)
-      
+
     # split independent and dependent variables  
     x_train = train[:, :-1]
     y_train = train[:, -1]
-        
-        
+
+
     x_test = test[:, :-1]
     y_test = test[:, -1]
-    
+
     # Transforms for LSTM input
     x_train = np.reshape(x_train, (x_train.shape[0], 
                                    x_train.shape[1], 
@@ -107,7 +104,7 @@ def get_reg_train_test(timeseries,sequence_length= 51,
     x_test = np.reshape(x_test, (x_test.shape[0], 
                                  x_test.shape[1], 
                                  1)) 
-    
+
     return x_train,y_train,x_test,y_test,scaler   
 
 
@@ -120,12 +117,12 @@ def get_seq_train_test(time_series, scaling=True,train_size=0.9):
         scaled_stock_series = scaler.fit_transform(time_series)
     else:
         scaled_stock_series = time_series
-        
+
     train_size = int(len(scaled_stock_series) * train_size)
 
-    train = scaled_stock_series[0:train_size]
-    test = scaled_stock_series[train_size:len(scaled_stock_series)]
-    
+    train = scaled_stock_series[:train_size]
+    test = scaled_stock_series[train_size:]
+
     return train,test,scaler 
 
 
@@ -183,13 +180,13 @@ def get_seq_model(hidden_units=4,input_shape=(1,1),verbose=False):
 # Window wise prediction function
 def predict_reg_multiple(model, data, window_size=6, prediction_len=3):
     prediction_list = []
-    
+
     # loop for every sequence in the dataset
     for window in range(int(len(data)/prediction_len)):
         _seq = data[window*prediction_len]
         predicted = []
         # loop till required prediction length is achieved
-        for j in range(prediction_len):
+        for _ in range(prediction_len):
             predicted.append(model.predict(_seq[np.newaxis,:,:])[0,0])
             _seq = _seq[1:]
             _seq = np.insert(_seq, [window_size-1], predicted[-1], axis=0)
@@ -201,22 +198,22 @@ def predict_reg_multiple(model, data, window_size=6, prediction_len=3):
 def plot_reg_results(predicted_data, true_data, prediction_len=3):
     fig = plt.figure(facecolor='white')
     ax = fig.add_subplot(111)
-    
+
     # plot actual data
     ax.plot(true_data, 
             label='True Data',
             c='black',alpha=0.3)
-    
+
     # plot flattened data
     plt.plot(np.array(predicted_data).flatten(), 
              label='Prediction_full',
              c='g',linestyle='--')
-    
+
     #plot each window in the prediction list
     for i, data in enumerate(predicted_data):
-        padding = [None for p in range(i * prediction_len)]
+        padding = [None for _ in range(i * prediction_len)]
         plt.plot(padding + data, label='Prediction',c='black')
 
-    plt.title("Forecast Plot with Prediction Window={}".format(prediction_len))
+    plt.title(f"Forecast Plot with Prediction Window={prediction_len}")
     plt.show()
     

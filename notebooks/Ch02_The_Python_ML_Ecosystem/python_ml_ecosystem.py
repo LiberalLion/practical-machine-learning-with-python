@@ -516,8 +516,8 @@ y_test = diabetes.target[310:]
 lasso = Lasso(random_state=0)
 alphas = np.logspace(-4, -0.5, 30)
 
-scores = list()
-scores_std = list()
+scores = []
+scores_std = []
 
 estimator = GridSearchCV(lasso,
                          param_grid = dict(alpha=alphas))

@@ -27,9 +27,13 @@ data_home = './'
 # In[2]:
 
 
-triplet_dataset = pd.read_csv(filepath_or_buffer=data_home+'train_triplets.txt', 
-                              nrows=10000,sep='\t', header=None, 
-                              names=['user','song','play_count'])
+triplet_dataset = pd.read_csv(
+    filepath_or_buffer=f'{data_home}train_triplets.txt',
+    nrows=10000,
+    sep='\t',
+    header=None,
+    names=['user', 'song', 'play_count'],
+)
 
 
 # In[3]:
@@ -44,14 +48,14 @@ triplet_dataset.head(n=10)
 
 
 output_dict = {}
-with open(data_home+'train_triplets.txt') as f:
+with open(f'{data_home}train_triplets.txt') as f:
     for line_number, line in enumerate(f):
         user = line.split('\t')[0]
         play_count = int(line.split('\t')[2])
         if user in output_dict:
             play_count +=output_dict[user]
-            output_dict.update({user:play_count})
-        output_dict.update({user:play_count})
+            output_dict[user] = play_count
+        output_dict[user] = play_count
 output_list = [{'user':k,'play_count':v} for k,v in output_dict.items()]
 play_count_df = pd.DataFrame(output_list)
 play_count_df = play_count_df.sort_values(by = 'play_count', ascending = False)
@@ -69,14 +73,14 @@ play_count_df.to_csv(path_or_buf='user_playcount_df.csv', index = False)
 
 
 output_dict = {}
-with open(data_home+'train_triplets.txt') as f:
+with open(f'{data_home}train_triplets.txt') as f:
     for line_number, line in enumerate(f):
         song = line.split('\t')[1]
         play_count = int(line.split('\t')[2])
         if song in output_dict:
             play_count +=output_dict[song]
-            output_dict.update({song:play_count})
-        output_dict.update({song:play_count})
+            output_dict[song] = play_count
+        output_dict[song] = play_count
 output_list = [{'song':k,'play_count':v} for k,v in output_dict.items()]
 song_count_df = pd.DataFrame(output_list)
 song_count_df = song_count_df.sort_values(by = 'play_count', ascending = False)
@@ -136,8 +140,12 @@ song_subset = list(song_count_subset.song)
 # In[20]:
 
 
-triplet_dataset = pd.read_csv(filepath_or_buffer=data_home+'train_triplets.txt',sep='\t', 
-                              header=None, names=['user','song','play_count'])
+triplet_dataset = pd.read_csv(
+    filepath_or_buffer=f'{data_home}train_triplets.txt',
+    sep='\t',
+    header=None,
+    names=['user', 'song', 'play_count'],
+)
 triplet_dataset_sub = triplet_dataset[triplet_dataset.user.isin(user_subset) ]
 del(triplet_dataset)
 triplet_dataset_sub_song = triplet_dataset_sub[triplet_dataset_sub.song.isin(song_subset)]
@@ -147,7 +155,9 @@ del(triplet_dataset_sub)
 # In[ ]:
 
 
-triplet_dataset_sub_song.to_csv(path_or_buf=data_home+'triplet_dataset_sub_song.csv', index=False)
+triplet_dataset_sub_song.to_csv(
+    path_or_buf=f'{data_home}triplet_dataset_sub_song.csv', index=False
+)
 
 
 # In[25]:
@@ -169,7 +179,7 @@ triplet_dataset_sub_song.head(n=10)
 # In[45]:
 
 
-conn = sqlite3.connect(data_home+'track_metadata.db')
+conn = sqlite3.connect(f'{data_home}track_metadata.db')
 cur = conn.cursor()
 cur.execute("SELECT name FROM sqlite_master WHERE type='table'")
 cur.fetchall()
@@ -191,7 +201,9 @@ track_metadata_df_sub = track_metadata_df[track_metadata_df.song_id.isin(song_su
 # In[50]:
 
 
-track_metadata_df_sub.to_csv(path_or_buf=data_home+'track_metadata_df_sub.csv', index=False)
+track_metadata_df_sub.to_csv(
+    path_or_buf=f'{data_home}track_metadata_df_sub.csv', index=False
+)
 
 
 # In[51]:
@@ -205,8 +217,12 @@ track_metadata_df_sub.shape
 # In[2]:
 
 
-triplet_dataset_sub_song = pd.read_csv(filepath_or_buffer=data_home+'train_triplets_sub_song.csv')
-track_metadata_df_sub = pd.read_csv(filepath_or_buffer=data_home+'track_metadata_df_sub.csv')
+triplet_dataset_sub_song = pd.read_csv(
+    filepath_or_buffer=f'{data_home}train_triplets_sub_song.csv'
+)
+track_metadata_df_sub = pd.read_csv(
+    filepath_or_buffer=f'{data_home}track_metadata_df_sub.csv'
+)
 
 
 # ## Clean up datasets
@@ -249,19 +265,20 @@ triplet_dataset_sub_song_merged.head(n=10)
 
 popular_songs = triplet_dataset_sub_song_merged[['title','listen_count']].groupby('title').sum().reset_index()
 popular_songs_top_20 = popular_songs.sort_values('listen_count', ascending=False).head(n=20)
-import matplotlib.pyplot as plt; plt.rcdefaults()
+import matplotlib.pyplot as plt
+plt.rcdefaults()
 import numpy as np
 import matplotlib.pyplot as plt
- 
+
 objects = (list(popular_songs_top_20['title']))
 y_pos = np.arange(len(objects))
 performance = list(popular_songs_top_20['listen_count'])
- 
+
 plt.bar(y_pos, performance, align='center', alpha=0.5)
 plt.xticks(y_pos, objects, rotation='vertical')
 plt.ylabel('Item count')
 plt.title('Most popular songs')
- 
+
 plt.show()
 
 
@@ -276,12 +293,12 @@ popular_release_top_20 = popular_release.sort_values('listen_count', ascending=F
 objects = (list(popular_release_top_20['release']))
 y_pos = np.arange(len(objects))
 performance = list(popular_release_top_20['listen_count'])
- 
+
 plt.bar(y_pos, performance, align='center', alpha=0.5)
 plt.xticks(y_pos, objects, rotation='vertical')
 plt.ylabel('Item count')
 plt.title('Most popular Release')
- 
+
 plt.show()
 
 
@@ -296,12 +313,12 @@ popular_artist_top_20 = popular_artist.sort_values('listen_count', ascending=Fal
 objects = (list(popular_artist_top_20['artist_name']))
 y_pos = np.arange(len(objects))
 performance = list(popular_artist_top_20['listen_count'])
- 
+
 plt.bar(y_pos, performance, align='center', alpha=0.5)
 plt.xticks(y_pos, objects, rotation='vertical')
 plt.ylabel('Item count')
 plt.title('Most popular Artists')
- 
+
 plt.show()
 
 
@@ -358,16 +375,14 @@ def create_popularity_recommendation(train_data, user_id, item_id):
     #Get a count of user_ids for each unique song as recommendation score
     train_data_grouped = train_data.groupby([item_id]).agg({user_id: 'count'}).reset_index()
     train_data_grouped.rename(columns = {user_id: 'score'},inplace=True)
-    
+
     #Sort the songs based upon recommendation score
     train_data_sort = train_data_grouped.sort_values(['score', item_id], ascending = [0,1])
-    
+
     #Generate a recommendation rank based upon score
     train_data_sort['Rank'] = train_data_sort['score'].rank(ascending=0, method='first')
-        
-    #Get the top 10 recommendations
-    popularity_recommendations = train_data_sort.head(20)
-    return popularity_recommendations
+
+    return train_data_sort.head(20)
 
 
 # In[82]:
@@ -528,14 +543,12 @@ uTest_recommended_items = compute_estimated_matrix(urm, U, S, Vt, uTest, K, True
 
 
 for user in uTest:
-    print("Recommendation for user with user id {}". format(user))
-    rank_value = 1
-    for i in uTest_recommended_items[user,0:10]:
+    print(f"Recommendation for user with user id {user}")
+    for rank_value, i in enumerate(uTest_recommended_items[user,0:10], start=1):
         song_details = small_set[small_set.so_index_value == i].drop_duplicates('so_index_value')[['title','artist_name']]
-        print("The number {} recommended song is {} BY {}".format(rank_value, list(song_details['title'])[0],list(song_details['artist_name'])[0]))
-        rank_value+=1
-
-
+        print(
+            f"The number {rank_value} recommended song is {list(song_details['title'])[0]} BY {list(song_details['artist_name'])[0]}"
+        )
 # In[15]:
 
 
@@ -549,10 +562,10 @@ uTest_recommended_items = compute_estimated_matrix(urm, U, S, Vt, uTest, K, True
 
 
 for user in uTest:
-    print("Recommendation for user with user id {}". format(user))
-    rank_value = 1
-    for i in uTest_recommended_items[user,0:10]:
+    print(f"Recommendation for user with user id {user}")
+    for rank_value, i in enumerate(uTest_recommended_items[user,0:10], start=1):
         song_details = small_set[small_set.so_index_value == i].drop_duplicates('so_index_value')[['title','artist_name']]
-        print("The number {} recommended song is {} BY {}".format(rank_value, list(song_details['title'])[0],list(song_details['artist_name'])[0]))
-        rank_value+=1
+        print(
+            f"The number {rank_value} recommended song is {list(song_details['title'])[0]} BY {list(song_details['artist_name'])[0]}"
+        )
 

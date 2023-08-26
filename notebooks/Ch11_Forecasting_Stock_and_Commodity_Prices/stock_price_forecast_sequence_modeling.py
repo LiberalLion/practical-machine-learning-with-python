@@ -4,6 +4,7 @@ Created on Sun Sep  3 12:22:37 2017
 
 @author: RAGHAV
 """
+
 import math
 import warnings
 import numpy as np
@@ -39,13 +40,13 @@ if __name__=='__main__':
     TRAIN_PERCENT = 0.7
     STOCK_INDEX = '^GSPC'
     VERBOSE=True
-    
+
     # load data
     sp_df = get_raw_data(STOCK_INDEX)
     sp_close_series = sp_df.Close 
 
     print("Data Retrieved")
-    
+
     # split train and test datasets
     train,test,scaler = get_seq_train_test(sp_close_series,
                                        scaling=True,
@@ -53,20 +54,20 @@ if __name__=='__main__':
 
     train = np.reshape(train,(1,train.shape[0],1))
     test = np.reshape(test,(1,test.shape[0],1))
-    
+
     train_x = train[:,:-1,:]
     train_y = train[:,1:,:]
-    
+
     test_x = test[:,:-1,:]
     test_y = test[:,1:,:]
-        
+
     print("Data Split Complete")
-    
-    print("train_x shape={}".format(train_x.shape))
-    print("train_y shape={}".format(train_y.shape))
-    print("test_x shape={}".format(test_x.shape))
-    print("test_y shape={}".format(test_y.shape))
-    
+
+    print(f"train_x shape={train_x.shape}")
+    print(f"train_y shape={train_y.shape}")
+    print(f"test_x shape={test_x.shape}")
+    print(f"test_y shape={test_y.shape}")
+
     # build RNN model
     seq_lstm_model=None
     try:
@@ -76,38 +77,38 @@ if __name__=='__main__':
         print("Model Build Failed. Trying Again")
         seq_lstm_model = get_seq_model(input_shape=(train_x.shape[1],1),
                                                     verbose=VERBOSE)
-        
+
     # train the model
     seq_lstm_model.fit(train_x, train_y, 
                    epochs=150, batch_size=1, 
                    verbose=2)
     print("Model Fit Complete")
-    
+
     # train fit performance
     trainPredict = seq_lstm_model.predict(train_x)
     trainScore = math.sqrt(mean_squared_error(train_y[0], trainPredict[0]))
     print('Train Score: %.2f RMSE' % (trainScore))
-    
-    
+
+
     # Pad input sequence
     testPredict = pad_sequences(test_x,
                                     maxlen=train_x.shape[1],
                                     padding='post',
                                     dtype='float64')
-    
+
     # forecast values
     testPredict = seq_lstm_model.predict(testPredict)
-    
+
     # evaluate performances
     testScore = math.sqrt(mean_squared_error(test_y[0], 
                                              testPredict[0][:test_x.shape[1]]))
-    
+
     # inverse transformation
     trainPredict = scaler.inverse_transform(trainPredict.\
                                             reshape(trainPredict.shape[1]))
     testPredict = scaler.inverse_transform(testPredict.\
                                            reshape(testPredict.shape[1]))
-    
+
     # plot the true and forecasted values
     train_size = len(trainPredict)+1
 

@@ -28,12 +28,17 @@ sns.set_context('talk')
 # Dickey Fuller test for Stationarity
 def ad_fuller_test(ts):
     dftest = adfuller(ts, autolag='AIC')
-    dfoutput = pd.Series(dftest[0:4], index=['Test Statistic',
-                                             'p-value',
-                                             '#Lags Used',
-                                             'Number of Observations Used'])
+    dfoutput = pd.Series(
+        dftest[:4],
+        index=[
+            'Test Statistic',
+            'p-value',
+            '#Lags Used',
+            'Number of Observations Used',
+        ],
+    )
     for key,value in dftest[4].items():
-        dfoutput['Critical Value (%s)'%key] = value
+        dfoutput[f'Critical Value ({key})'] = value
     print(dfoutput)
 
 # Plot rolling stats for a time series
@@ -65,7 +70,7 @@ def auto_arima(param_max=1,series=pd.Series(),verbose=True):
 
     # Generate all different combinations of seasonal p, d and q triplets
     pdq = [(x[0], x[1], x[2]) for x in list(itertools.product(p, d, q))]
-    
+
     model_resuls = []
     best_model = {}
     min_aic = 10000000
@@ -74,9 +79,9 @@ def auto_arima(param_max=1,series=pd.Series(),verbose=True):
             mod = sm.tsa.ARIMA(series, order=param)
 
             results = mod.fit()
-            
+
             if verbose:
-                print('ARIMA{}- AIC:{}'.format(param, results.aic))
+                print(f'ARIMA{param}- AIC:{results.aic}')
             model_resuls.append({'aic':results.aic,
                                  'params':param,
                                  'model_obj':results})
@@ -88,50 +93,48 @@ def auto_arima(param_max=1,series=pd.Series(),verbose=True):
         except Exception as ex:
             print(ex)
     if verbose:
-        print("Best Model params:{} AIC:{}".format(best_model['params'],
-              best_model['aic']))  
-        
+        print(f"Best Model params:{best_model['params']} AIC:{best_model['aic']}")  
+
     return best_model, model_resuls
 
 
 def arima_gridsearch_cv(series, cv_splits=2,verbose=True,show_plots=True):
     # prepare train-test split object
     tscv = TimeSeriesSplit(n_splits=cv_splits)
-    
+
     # initialize variables
     splits = []
     best_models = []
     all_models = []
     i = 1
-    
+
     # loop through each CV split
     for train_index, test_index in tscv.split(series):
         print("*"*20)
-        print("Iteration {} of {}".format(i,cv_splits))
+        print(f"Iteration {i} of {cv_splits}")
         i = i + 1
-        
+
         # print train and test indices
         if verbose:
             print("TRAIN:", train_index, "TEST:", test_index)
         splits.append({'train':train_index,'test':test_index})
-        
+
         # split train and test sets
         train_series = series.ix[train_index]
         test_series = series.ix[test_index]
-        
-        print("Train shape:{}, Test shape:{}".format(train_series.shape,
-              test_series.shape))
-        
+
+        print(f"Train shape:{train_series.shape}, Test shape:{test_series.shape}")
+
         # perform auto arima
         _best_model, _all_models = auto_arima(series=train_series)
         best_models.append(_best_model)
         all_models.append(_all_models)
-        
+
         # display summary for best fitting model
         if verbose:
             print(_best_model['model_obj'].summary())
         results = _best_model['model_obj']
-        
+
         if show_plots:
             # show residual plots
             residuals = pd.DataFrame(results.resid)
@@ -142,7 +145,7 @@ def arima_gridsearch_cv(series, cv_splits=2,verbose=True,show_plots=True):
             plt.title('KDE Plot')
             plt.show()
             print(residuals.describe())
-        
+
             # show forecast plot
             fig, ax = plt.subplots(figsize=(18, 4))
             fig.autofmt_xdate()

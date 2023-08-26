@@ -6,6 +6,7 @@ Created on Mon May 17 00:00:00 2017
 @author: DIP
 """
 
+
 # # Import necessary dependencies and settings
 
 # In[1]:
@@ -34,7 +35,7 @@ from sklearn.preprocessing import LabelEncoder
 
 gle = LabelEncoder()
 genre_labels = gle.fit_transform(vg_df['Genre'])
-genre_mappings = {index: label for index, label in enumerate(gle.classes_)}
+genre_mappings = dict(enumerate(gle.classes_))
 genre_mappings
 
 
@@ -101,7 +102,9 @@ gen_features = pd.DataFrame(gen_feature_arr, columns=gen_feature_labels)
 # encode legendary status labels using one-hot encoding scheme
 leg_ohe = OneHotEncoder()
 leg_feature_arr = leg_ohe.fit_transform(poke_df[['Lgnd_Label']]).toarray()
-leg_feature_labels = ['Legendary_'+str(cls_label) for cls_label in leg_le.classes_]
+leg_feature_labels = [
+    f'Legendary_{str(cls_label)}' for cls_label in leg_le.classes_
+]
 leg_features = pd.DataFrame(leg_feature_arr, columns=leg_feature_labels)
 
 

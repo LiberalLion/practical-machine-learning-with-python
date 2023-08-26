@@ -6,6 +6,7 @@ Created on Mon May 17 00:00:00 2017
 @author: DIP
 """
 
+
 # # Import necessary dependencies and settings
 
 # In[1]:
@@ -78,11 +79,11 @@ print('Response class shape:', bc_y.shape)
 # In[8]:
 
 np.set_printoptions(threshold=30)
-print('Feature set data [shape: '+str(bc_X.shape)+']')
+print(f'Feature set data [shape: {str(bc_X.shape)}]')
 print(np.round(bc_X, 2), '\n')
 print('Feature names:')
 print(np.array(bc_features.columns), '\n')
-print('Predictor Class label data [shape: '+str(bc_y.shape)+']')
+print(f'Predictor Class label data [shape: {str(bc_y.shape)}]')
 print(bc_y, '\n')
 print('Predictor name:', np.array(bc_classes.columns))
 np.set_printoptions(threshold=pt)
@@ -98,7 +99,7 @@ skb.fit(bc_X, bc_y)
 
 # In[10]:
 
-feature_scores = [(item, score) for item, score in zip(bc_data.feature_names, skb.scores_)]
+feature_scores = list(zip(bc_data.feature_names, skb.scores_))
 sorted(feature_scores, key=lambda x: -x[1])[:10]
 
 
@@ -171,7 +172,7 @@ rfc.fit(bc_X, bc_y)
 # In[18]:
 
 importance_scores = rfc.feature_importances_
-feature_importances = [(feature, score) for feature, score in zip(bc_data.feature_names, importance_scores)]
+feature_importances = list(zip(bc_data.feature_names, importance_scores))
 sorted(feature_importances, key=lambda x: -x[1])[:10]
 
 

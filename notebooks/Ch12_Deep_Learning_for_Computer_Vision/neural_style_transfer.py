@@ -30,8 +30,7 @@ def deprocess_image(x):
     x[:, :, 2] += 123.68
     # 'BGR'->'RGB'
     x = x[:, :, ::-1]
-    x = np.clip(x, 0, 255).astype('uint8')
-    return x
+    return np.clip(x, 0, 255).astype('uint8')
     
     
 def content_loss(base, combination):
@@ -60,11 +59,7 @@ def total_variation_loss(x):
     return K.sum(K.pow(a + b, 1.25))
     
 def set_cnn_layers(source='gatys'):
-    if source == 'gatys':
-        content_layer = 'block5_conv2'
-        style_layers = ['block1_conv1', 'block2_conv1', 'block3_conv1', 
-                        'block4_conv1', 'block5_conv1']
-    elif source == 'johnson':
+    if source == 'johnson':
         content_layer = 'block2_conv2'
         style_layers = ['block1_conv2', 'block2_conv2', 'block3_conv3', 
                         'block4_conv3', 'block5_conv3']
@@ -169,7 +164,7 @@ fetch_loss_and_grads = K.function([generated_image], [loss, grads])
 evaluator = Evaluator(height=img_height, width=img_width)
 
 result_prefix = 'style_transfer_result_'+TARGET_IMG.split('.')[0]
-result_prefix = result_prefix+'_'+source_paper
+result_prefix = f'{result_prefix}_{source_paper}'
 iterations = 20
 
 # Run scipy-based optimization (L-BFGS) over the pixels of the generated image

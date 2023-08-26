@@ -26,8 +26,7 @@ stopword_list.remove('not')
 # # Cleaning Text - strip HTML
 def strip_html_tags(text):
     soup = BeautifulSoup(text, "html.parser")
-    stripped_text = soup.get_text()
-    return stripped_text
+    return soup.get_text()
 
 
 # # Removing accented characters
@@ -76,8 +75,7 @@ def remove_stopwords(text, is_lower_case=False):
         filtered_tokens = [token for token in tokens if token not in stopword_list]
     else:
         filtered_tokens = [token for token in tokens if token.lower() not in stopword_list]
-    filtered_text = ' '.join(filtered_tokens)    
-    return filtered_text
+    return ' '.join(filtered_tokens)
 
 
 # # Normalize text corpus - tying it all together

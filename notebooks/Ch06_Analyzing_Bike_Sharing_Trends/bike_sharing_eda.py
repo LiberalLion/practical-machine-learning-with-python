@@ -48,7 +48,7 @@ from IPython.display import display, HTML
 
 
 hour_df = pd.read_csv('hour.csv')
-print("Shape of dataset::{}".format(hour_df.shape))
+print(f"Shape of dataset::{hour_df.shape}")
 
 
 # In[3]:
@@ -198,7 +198,7 @@ ax[0][1].set(title="Summer")
 sn.barplot(data=fall_df[plot_col_list],x="month",y="total_count",ax=ax[1][0])
 ax[1][0].set(title="Fall")
 
-sn.barplot(data=winter_df[plot_col_list],x="month",y="total_count",ax=ax[1][1])  
+sn.barplot(data=winter_df[plot_col_list],x="month",y="total_count",ax=ax[1][1])
 ax[1][1].set(title="Winter")
 
 

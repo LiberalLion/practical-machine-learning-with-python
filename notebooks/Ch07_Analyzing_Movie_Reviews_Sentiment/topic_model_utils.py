@@ -23,12 +23,12 @@ def print_topics_udf(topics, total_topics=1,
         topic = [(word, round(wt,2)) 
                  for word, wt in topic 
                  if abs(wt) >= weight_threshold]
-                     
+
         if display_weights:
-            print('Topic #'+str(index+1)+' with weights')
+            print(f'Topic #{str(index + 1)} with weights')
             print(topic[:num_terms]) if num_terms else topic
         else:
-            print('Topic #'+str(index+1)+' without weights')
+            print(f'Topic #{str(index + 1)} without weights')
             tw = [term for term, wt in topic]
             print(tw[:num_terms]) if num_terms else tw
         print()
@@ -47,10 +47,8 @@ def get_topics_terms_weights(weights, feature_names):
     sorted_terms = np.array([list(feature_names[row]) 
                              for row 
                              in sorted_indices])
-    
-    topics = [np.vstack((terms.T, 
-                     term_weights.T)).T 
-              for terms, term_weights 
-              in zip(sorted_terms, sorted_weights)]     
-    
-    return topics         
+
+    return [
+        np.vstack((terms.T, term_weights.T)).T
+        for terms, term_weights in zip(sorted_terms, sorted_weights)
+    ]         
